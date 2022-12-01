@@ -2,7 +2,6 @@ from socket import *
 import threading
 import time
 
-
 def send(sock):
     while True:
         sendData = input('>>>')
@@ -15,7 +14,7 @@ def receive(sock):
         print('상대방 :', recvData.decode('utf-8'))
 
 
-port = 8081
+port = 8082
 
 clientSock = socket(AF_INET, SOCK_STREAM)
 clientSock.connect(('127.0.0.1', port))
