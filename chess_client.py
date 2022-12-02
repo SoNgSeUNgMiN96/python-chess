@@ -14,19 +14,15 @@ def receive(sock):
         print('상대방 :', recvData.decode('utf-8'))
 
 
-port = 8082
-
-clientSock = socket(AF_INET, SOCK_STREAM)
-clientSock.connect(('127.0.0.1', port))
-
-print('접속 완료')
-
-sender = threading.Thread(target=send, args=(clientSock,))
-receiver = threading.Thread(target=receive, args=(clientSock,))
-
-sender.start()
-receiver.start()
-
-while True:
-    time.sleep(1)
-    pass
+def mainMethod():
+    port = 8083
+    clientSock = socket(AF_INET, SOCK_STREAM)
+    clientSock.connect(('127.0.0.1', port))
+    print('접속 완료')
+    sender = threading.Thread(target=send, args=(clientSock,))
+    receiver = threading.Thread(target=receive, args=(clientSock,))
+    sender.start()
+    receiver.start()
+    while True:
+        time.sleep(1)
+        pass
