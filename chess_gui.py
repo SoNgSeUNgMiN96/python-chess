@@ -11,6 +11,7 @@ import pygame as py
 import ai_engine
 import chess_server
 import select_server_client
+from server.network import Network
 from enums import Player
 import threading
 
@@ -90,6 +91,16 @@ def highlight_square(screen, game_state, valid_moves, square_selected):
 
 def main():
     # Check for the number of players and the color of the AI
+
+    network_game()
+    # normal_game()
+
+
+def network_game():
+    pygame_start("", True)
+
+
+def normal_game():
     human_player = ""
     while True:
         try:
@@ -110,28 +121,10 @@ def main():
                 print("Enter 1 or 2.\n")
         except ValueError:
             print("Enter 1 or 2.")
-
-    chess_server_main_thread = threading.Thread(target=select_server_client.mainMethod, args=())
-    chess_server_main_thread.start()
+    pygame_start(human_player, False)
 
 
-    threading.Thread(target=server_check, args=()).start()
-
-
-    pystart = threading.Thread(target=pygame_start, args=(human_player,))
-    pystart.start()
-
-
-def server_check():
-    while True:
-        if chess_server.isStarted:
-            print("started")
-            break
-
-
-
-def pygame_start(human_player):
-    print(2)
+def pygame_start(human_player, is_multi):
     py.init()
     screen = py.display.set_mode((WIDTH, HEIGHT))
     clock = py.time.Clock()
@@ -144,10 +137,24 @@ def pygame_start(human_player):
     game_over = False
     ai = ai_engine.chess_ai()
     game_state = chess_engine.game_state()
+
+    turn =""
+    n = ""
+    if is_multi:
+        n = Network()
+        turn = n.getTurn()
+        print("you are {} player", turn)
+
+
     if human_player == 'b':
         ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
         game_state.move_piece(ai_move[0], ai_move[1], True)
     while running:
+
+        # 멀티모드에서 w이면 클릭불가능
+        if is_multi and turn == 'w':
+            continue
+
         for e in py.event.get():
             if e.type == py.QUIT:
                 running = False
@@ -156,12 +163,18 @@ def pygame_start(human_player):
                     location = py.mouse.get_pos()
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
+
+
+                    #같은 클릭은 이동 취소를 의미한다.
                     if square_selected == (row, col):
                         square_selected = ()
                         player_clicks = []
+                    #현재 클릭한 좌표를 담아준다.
                     else:
                         square_selected = (row, col)
                         player_clicks.append(square_selected)
+
+
                     if len(player_clicks) == 2:
                         # this if is useless right now
                         if (player_clicks[1][0], player_clicks[1][1]) not in valid_moves:
