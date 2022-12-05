@@ -33,7 +33,6 @@ def load_images():
 
 def draw_game_state(screen, game_state, valid_moves, square_selected):
     ''' Draw the complete chess board with pieces
-
     Keyword arguments:
         :param screen       -- the pygame screen
         :param game_state   -- the state of the current chess game
@@ -45,7 +44,6 @@ def draw_game_state(screen, game_state, valid_moves, square_selected):
 
 def draw_squares(screen):
     ''' Draw the chess board with the alternating two colors
-
     :param screen:          -- the pygame screen
     '''
     for r in range(DIMENSION):
@@ -56,7 +54,6 @@ def draw_squares(screen):
 
 def draw_pieces(screen, game_state):
     ''' Draw the chess pieces onto the board
-
     :param screen:          -- the pygame screen
     :param game_state:      -- the current state of the chess game
     '''
