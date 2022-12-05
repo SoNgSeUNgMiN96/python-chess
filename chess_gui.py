@@ -14,6 +14,7 @@ import select_server_client
 from server.network import Network
 from enums import Player
 import threading
+from _thread import *
 
 """Variables"""
 WIDTH = HEIGHT = 512  # width and height of the chess board
@@ -140,11 +141,16 @@ def pygame_start(human_player, is_multi):
 
     my_color = None
     n = None
+
+    isStart = False
+
+
     if is_multi:
         n = Network()
-        my_color = n.getTurn()
-        print("you are {} player", my_color)
+        start_new_thread(n.getMessage, ())
 
+
+    print("testikng")
 
     if human_player == 'b':
         ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
@@ -154,8 +160,8 @@ def pygame_start(human_player, is_multi):
         turn = None
 
         #멀티모드에서 턴을 계속해서 받아온다?
-        if is_multi:
-            turn = n.getMessage()
+        #if is_multi:
+            #turn = n.getMessageessage()
 
 
 
@@ -166,7 +172,7 @@ def pygame_start(human_player, is_multi):
             if e.type == py.QUIT:
                 running = False
             # 멀티모드에서 w이면 클릭불가능
-            elif is_multi and turn != my_color:
+            elif is_multi and turn != my_color or not n.isStartd:
                 continue
 
             elif e.type == py.MOUSEBUTTONDOWN:

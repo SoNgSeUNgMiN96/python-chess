@@ -5,8 +5,8 @@ import common
 
 import random
 
-from server.Player import Player
-from server.Room import Room
+from Player import Player
+from Room import Room
 
 server = "127.0.0.1"
 port = 5555
@@ -34,7 +34,7 @@ randomTurn = random.randint(0, 2)
 
 
 def isRoomExist():
-    room_list = Room(roomList)
+    room_list = roomList
     for room in room_list:
         if room.isEnterable():
             return room
@@ -46,7 +46,7 @@ def sendEncode(conn, message):
 
 
 def threaded_client(conn):
-    room = Room(isRoomExist())
+    room = isRoomExist()
 
     # 룸이 없다면 룸 생성 후 리스트 추가
     if room is None:
@@ -59,7 +59,8 @@ def threaded_client(conn):
     room.add_player(player)
 
     #startable 일 때 전송해줘야함.
-    
+    if room.isFull or True:
+        room.broadcast("start")
 
     while True:
         try:
@@ -95,4 +96,4 @@ while True:
     conn, addr = s.accept()
     print("Connected to:", addr)
 
-    start_new_thread(threaded_client, (conn))
+    start_new_thread(threaded_client, (conn, ))

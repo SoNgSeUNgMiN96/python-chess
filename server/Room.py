@@ -1,6 +1,6 @@
 import random
 
-from server.Player import Player
+from Player import Player
 
 
 class Room:
@@ -22,4 +22,5 @@ class Room:
 
     def broadcast(self, message):
         for player in self.playerList:
-            Player(player).send(message)
+            player.send(message)
+

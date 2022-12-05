@@ -8,21 +8,19 @@ class Network:
         self.port = 5555
         self.addr = (self.server, self.port)
         self.pos = (0, 0, 0, 0)
-        self.turn = self.connect()
+        self.client.connect(self.addr)
+        self.isStartd = False
 
     def getPos(self):
         return self.pos
 
-    def connect(self):
-        try:
-            return self.getMessage()
-        except:
-            pass
-
     def getMessage(self):
         try:
-            self.client.connect(self.addr)
-            return self.client.recv(2048).decode()
+            data = self.client.recv(2048).decode()
+            if data == "start":
+                self.isStartd = True
+                print("game {} ", data)
+            return data
         except:
             pass
 
