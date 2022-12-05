@@ -21,7 +21,6 @@ MAX_FPS = 15  # FPS for animations
 IMAGES = {}  # images for the chess pieces
 colors = [py.Color("white"), py.Color("gray")]
 
-
 # TODO: AI black has been worked on. Mirror progress for other two modes
 def load_images():
     '''
@@ -84,7 +83,6 @@ def highlight_square(screen, game_state, valid_moves, square_selected):
             for move in valid_moves:
                 screen.blit(s, (move[1] * SQ_SIZE, move[0] * SQ_SIZE))
 
-
 class Button:
     def __init__(self, img_in, x, y, width, height, action=None, main_menu_display=None):
         mouse = py.mouse.get_pos()
@@ -97,6 +95,17 @@ class Button:
         else:
             main_menu_display.blit(img_in, (x, y))
 
+class Button2:
+    def __init__(self, img_in, x, y, width, height, player, main_menu_display=None):
+        mouse = py.mouse.get_pos()
+        click = py.mouse.get_pressed()
+        if x + width > mouse[0] > x and y + height > mouse[1] > y:
+            main_menu_display.blit(img_in, (x, y))
+            if click[0] and player is not None:
+                time.sleep(1)
+                start_game(player)
+        else:
+            main_menu_display.blit(img_in, (x, y))
 
 def start_game(human_player):
     screen = py.display.set_mode((WIDTH, HEIGHT))
@@ -166,6 +175,7 @@ def start_game(human_player):
                     print(len(game_state.move_log))
                 elif e.key == py.K_q:
                     running = False
+                    start_main_menu()
 
         draw_game_state(screen, game_state, valid_moves, square_selected)
 
@@ -183,11 +193,35 @@ def start_game(human_player):
         clock.tick(MAX_FPS)
         py.display.flip()
 
-
 def start_1p():
-    human_player = "w"
-    start_game(human_player)
+    select = True
 
+    while select:
+        background_image = py.image.load("images/background.png")
+        background_image = py.transform.scale(background_image, (800, 600))
+        
+        button_white_image = py.image.load("images/white_n.png")
+        button_white_image = py.transform.scale(button_white_image, (200, 200))
+        button_black_image = py.image.load("images/black_n.png")
+        button_black_image = py.transform.scale(button_black_image, (200, 200))
+        button_back_image = py.image.load("images/back.png")
+        button_back_image = py.transform.scale(button_back_image, (100, 100))
+
+        select_menu_display_width, select_menu_display_height = 800, 600
+        select_menu_display = py.display.set_mode((select_menu_display_width, select_menu_display_height))
+        clock = py.time.Clock()
+
+        for event in py.event.get():
+            if event.type == py.QUIT:
+                py.quit()
+                sys.exit()
+
+        select_menu_display.blit(background_image, (0, 0))
+        button_white = Button2(button_white_image, 150, 200, 200, 200, "w", select_menu_display)
+        button_black = Button2(button_black_image, 450, 200, 200, 200, "b", select_menu_display)
+        button_back = Button(button_back_image, 650, 450, 100, 100, start_main_menu, select_menu_display)
+        py.display.update()
+        clock.tick(MAX_FPS)
 
 def start_2p():
     human_player = ""
@@ -200,7 +234,7 @@ def start_main_menu():
     while menu:
         background_image = py.image.load("images/background.png")
         background_image = py.transform.scale(background_image, (800, 600))
-
+        
         button_1p_image = py.image.load("images/1p_button.png")
         button_2p_image = py.image.load("images/2p_button.png")
         online_button_image = py.image.load("images/online_button.png")
@@ -219,7 +253,7 @@ def start_main_menu():
         button_2p = Button(button_2p_image, 445, 260, 98, 67, start_2p, main_menu_display)
         online_button = Button(online_button_image, 330, 360, 162, 67, None, main_menu_display)
         py.display.update()
-        clock.tick(15)
+        clock.tick(MAX_FPS)
 
 
 def main():
