@@ -4,6 +4,7 @@ from server.Player import Player
 
 
 class Room:
+
     def __init__(self):
         self.playerList = []
         self.turn = 0
@@ -18,3 +19,7 @@ class Room:
 
     def isEnterable(self):
         return self.isFull
+
+    def broadcast(self, message):
+        for player in self.playerList:
+            Player(player).send(message)

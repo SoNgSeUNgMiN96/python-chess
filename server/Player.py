@@ -4,3 +4,6 @@ class Player:
         self.connection = connection
         self.room = room
         self.playerNumber = playerNumber
+
+    def send(self, message):
+        self.connection.send(str.encode(message))
