@@ -1,11 +1,20 @@
+import random
+
+from server.Player import Player
+
 
 class Room:
     def __init__(self):
-        self.player1 = None
-        self.player2 = None
+        self.playerList = []
+        self.turn = 0
+        self.playerNumber = 0
+        self.isFull = False
 
-    def setPlayer1(self, Player):
-        self.player1 = Player
+    def add_player(self, player):
+        self.playerList.append(player)
+        self.playerNumber += 1
+        if self.playerNumber == 2:
+            self.isFull = True
 
-    def setPlayer2(self, Player):
-        self.player2 = Player
+    def isEnterable(self):
+        return self.isFull
