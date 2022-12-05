@@ -1,5 +1,6 @@
 import socket
 
+
 class Network:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -13,6 +14,12 @@ class Network:
         return self.pos
 
     def connect(self):
+        try:
+            return self.getMessage()
+        except:
+            pass
+
+    def getMessage(self):
         try:
             self.client.connect(self.addr)
             return self.client.recv(2048).decode()

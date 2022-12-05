@@ -138,26 +138,37 @@ def pygame_start(human_player, is_multi):
     ai = ai_engine.chess_ai()
     game_state = chess_engine.game_state()
 
-    turn =""
-    n = ""
+    my_color = None
+    n = None
     if is_multi:
         n = Network()
-        turn = n.getTurn()
-        print("you are {} player", turn)
+        my_color = n.getTurn()
+        print("you are {} player", my_color)
 
 
     if human_player == 'b':
         ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
         game_state.move_piece(ai_move[0], ai_move[1], True)
-    while running:
 
-        # 멀티모드에서 w이면 클릭불가능
-        if is_multi and turn == 'w':
-            continue
+    while running:
+        turn = None
+
+        #멀티모드에서 턴을 계속해서 받아온다?
+        if is_multi:
+            turn = n.getMessage()
+
+
+
 
         for e in py.event.get():
+
+
             if e.type == py.QUIT:
                 running = False
+            # 멀티모드에서 w이면 클릭불가능
+            elif is_multi and turn != my_color:
+                continue
+
             elif e.type == py.MOUSEBUTTONDOWN:
                 if not game_over:
                     location = py.mouse.get_pos()
