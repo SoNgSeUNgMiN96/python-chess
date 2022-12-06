@@ -145,35 +145,48 @@ def pygame_start(human_player, is_multi):
     isStart = False
 
 
+    #게임시작은 쓰레드로 돌려야함. 누군가 들어와서 시작할 때 까진 대기해야함.
     if is_multi:
         n = Network()
         start_new_thread(n.getMessage, ())
 
-
-    print("testikng")
+    isFirst = True
+    turn = None
+    myPlayerNum = None
 
     if human_player == 'b':
         ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
         game_state.move_piece(ai_move[0], ai_move[1], True)
 
     while running:
-        turn = None
+
 
         #멀티모드에서 턴을 계속해서 받아온다?
         #if is_multi:
             #turn = n.getMessageessage()
 
+        if is_multi:
+            if n.isStart:
 
+                if isFirst:
+                    temp = str(n.startMessege)
+                    temp = temp.split(" ")
+                    print("temp 출력")
+                    turn = int(temp[1])
+                    myPlayerNum = int(temp[2])
+                    isFirst = False
 
 
         for e in py.event.get():
 
-
             if e.type == py.QUIT:
                 running = False
-            # 멀티모드에서 w이면 클릭불가능
-            elif is_multi and turn != my_color or not n.isStartd:
-                continue
+
+            # 멀티모드에서 최초의 초기화 부분이라고 볼 수 있음. 이 부분에서 차례와 모든것을 정한다.
+
+
+            elif is_multi and (not n.isStart or (turn % 2 != myPlayerNum)):
+                break
 
             elif e.type == py.MOUSEBUTTONDOWN:
                 if not game_over:
@@ -228,7 +241,6 @@ def pygame_start(human_player, is_multi):
                     print(len(game_state.move_log))
 
         draw_game_state(screen, game_state, valid_moves, square_selected)
-
         endgame = game_state.checkmate_stalemate_checker()
         if endgame == 0:
             game_over = True

@@ -60,7 +60,15 @@ def threaded_client(conn):
 
     #startable 일 때 전송해줘야함.
     if room.isFull or True:
-        room.broadcast("start")
+        room.broadcast("start ")
+        print("start broadcast")
+        room.gamestart()
+        room.broadcast(str(room.turn)+" ")
+        print("turn broadcast")
+        player.send(str(player.playerNumber)+" ")
+        print("playerNum send")
+        #room.playerList[(player.playerNumber+1)%2].send(str((player.playerNumber+1)%2))
+        print("another playerNum send")
 
     while True:
         try:

@@ -9,7 +9,9 @@ class Network:
         self.addr = (self.server, self.port)
         self.pos = (0, 0, 0, 0)
         self.client.connect(self.addr)
-        self.isStartd = False
+        self.isStart = False
+        self.turn = None
+        self.startMessege = None
 
     def getPos(self):
         return self.pos
@@ -17,9 +19,10 @@ class Network:
     def getMessage(self):
         try:
             data = self.client.recv(2048).decode()
-            if data == "start":
-                self.isStartd = True
-                print("game {} ", data)
+            if data.__contains__("start"):
+                self.isStart = True
+                print("game ", data)
+                self.startMessege = data
             return data
         except:
             pass

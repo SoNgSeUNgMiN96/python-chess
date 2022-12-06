@@ -22,5 +22,8 @@ class Room:
 
     def broadcast(self, message):
         for player in self.playerList:
-            player.send(message)
+            player.send(str(message))
+
+    def gamestart(self):
+        self.turn = random.randint(0,10)
 
