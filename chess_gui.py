@@ -109,7 +109,7 @@ def main():
             print("Enter 1 or 2.")
 
     py.init()
-    screen = py.display.set_mode((WIDTH, HEIGHT))
+    screen = py.display.set_mode((512, 600))
     clock = py.time.Clock()
     game_state = chess_engine.game_state()
     load_images()
@@ -260,10 +260,10 @@ def main():
 
 
 def draw_text(screen, text):
-    font = py.font.SysFont("Helvitca", 32, True, False)
-    text_object = font.render(text, False, py.Color("Black"))
-    text_location = py.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH / 2 - text_object.get_width() / 2,
-                                                      HEIGHT / 2 - text_object.get_height() / 2)
+    font= py.font.SysFont("malgungothic", 32)
+    text_object = font.render(text, True, py.Color("White"))
+    text_location = py.Rect(0, 300, WIDTH, HEIGHT).move(WIDTH / 2 - text_object.get_width() / 2,
+                                                      HEIGHT/ 2  - text_object.get_height() / 2)
     screen.blit(text_object, text_location)
 
 
