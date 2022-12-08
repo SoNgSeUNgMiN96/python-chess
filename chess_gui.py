@@ -191,15 +191,16 @@ def pygame_start(human_player, is_multi):
                     anotherFirst = False
                 else:
                     if n.pos is not None:
-                        print("n pos!! ="+n.pos[0][0]+" "+n.pos[0][1]+" "+n.pos[1][0]+" "+n.pos[1][1]+" ")
+                        print("n pos!! ="+str(n.pos[0][0])+" "+str(n.pos[0][1])+" "+str(n.pos[1][0])+" "+str(n.pos[1][1])+" ")
                         game_state.move_piece((n.pos[0][0], n.pos[0][1]),
                                               (n.pos[1][0], n.pos[1][1]), False)
                         n.pos = None
                         anotherFirst = True
                         n.turn +=1
+                        print("turn  = " + str(n.turn))
 
 
-            game_state, running, square_selected, valid_moves = click_method(ai, game_over, game_state, human_player,
+            game_state, running, square_selected, valid_moves, player_clicks = click_method(ai, game_over, game_state, human_player,
                                                                          is_multi, myPlayerNum, n, player_clicks,
                                                                          running, square_selected, valid_moves)
 
@@ -263,6 +264,7 @@ def click_method(ai, game_over, game_state, human_player, is_multi, myPlayerNum,
                             n.sendOnly(server.common.make_pos(player_clicks))
                             print(server.common.make_pos(player_clicks))
                             n.turn += 1
+                            print("turn  = "+ str(n.turn))
 
 
                         square_selected = ()
@@ -290,7 +292,7 @@ def click_method(ai, game_over, game_state, human_player, is_multi, myPlayerNum,
             elif e.key == py.K_u:
                 game_state.undo_move()
                 print(len(game_state.move_log))
-    return game_state, running, square_selected, valid_moves
+    return game_state, running, square_selected, valid_moves, player_clicks
 
 
 def draw_text(screen, text):

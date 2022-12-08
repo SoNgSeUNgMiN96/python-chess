@@ -47,7 +47,6 @@ class Network:
     def sendOnly(self, data):
         try:
             self.client.send(str.encode(data))
-            self.turn += 1
             print(data)
         except socket.error as e:
             print(e)
