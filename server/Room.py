@@ -18,7 +18,7 @@ class Room:
             self.isFull = True
 
     def isEnterable(self):
-        return self.isFull
+        return not self.isFull
 
     def broadcast(self, message):
         for player in self.playerList:

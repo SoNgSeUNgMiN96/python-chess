@@ -8,7 +8,7 @@ import random
 from Player import Player
 from Room import Room
 
-server = "127.0.0.1"
+server = "192.168.219.107"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -69,8 +69,11 @@ def threaded_client(conn):
         # print("turn broadcast")
         player.send(message + str(player.playerNumber))
         print("playerNum send")
-        # room.playerList[(player.playerNumber+1)%2].send(str((player.playerNumber+1)%2))
-        print("another playerNum send")
+        anotherPlayerNum = (player.playerNumber + 1) %2
+
+        anotherMessage = message + str(anotherPlayerNum)
+        room.sendAnotherPlayer(player.playerNumber, anotherMessage)
+        print("another playerNum send"+ anotherMessage)
 
     while True:
         try:

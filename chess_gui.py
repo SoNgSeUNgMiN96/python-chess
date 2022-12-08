@@ -171,6 +171,9 @@ def pygame_start(human_player, is_multi):
             if n.isStart:
                 if isFirst:
                     temp = str(n.startMessege)
+
+                    print(temp)
+
                     temp = temp.split(" ")
                     n.turn = int(temp[1])
                     myPlayerNum = int(temp[2])
@@ -184,14 +187,16 @@ def pygame_start(human_player, is_multi):
             #멀티모드에서 상대턴일경우
             if is_multi and (n.turn!=myPlayerNum):
                 if anotherFirst:
-                    start_new_thread(n.getPos, ())
+                    start_new_thread(n.getPosMessage, ())
                     anotherFirst = False
                 else:
                     if n.pos is not None:
+                        print("n pos!! ="+n.pos[0][0]+" "+n.pos[0][1]+" "+n.pos[1][0]+" "+n.pos[1][1]+" ")
                         game_state.move_piece((n.pos[0][0], n.pos[0][1]),
                                               (n.pos[1][0], n.pos[1][1]), False)
                         n.pos = None
                         anotherFirst = True
+                        n.turn +=1
 
 
             game_state, running, square_selected, valid_moves = click_method(ai, game_over, game_state, human_player,
