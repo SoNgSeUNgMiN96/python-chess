@@ -5,6 +5,7 @@
 # Note: The pygame tutorial by Eddie Sharick was used for the GUI engine. The GUI code was altered by Boo Sung Kim to
 # fit in with the rest of the project.
 #
+
 import chess_engine
 import pygame as py
 import server.common
@@ -152,8 +153,8 @@ def pygame_start(human_player, is_multi):
         start_new_thread(n.getMessage, ())
 
     isFirst = True
-    turn = None
     myPlayerNum = None
+    anotherFirst = True
 
     if human_player == 'b':
         ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
@@ -171,17 +172,34 @@ def pygame_start(human_player, is_multi):
                 if isFirst:
                     temp = str(n.startMessege)
                     temp = temp.split(" ")
-                    turn = int(temp[1])
+                    n.turn = int(temp[1])
                     myPlayerNum = int(temp[2])
                     isFirst = False
-                    print("turn : "+str(turn))
+                    print("turn : "+str(n.turn))
                     print("myPlayerNum : "+str(myPlayerNum))
 
         #멀티모드가 아니거나, 멀티모드이지만 시작한 경우.
         if not is_multi or (is_multi and n.isStart):
+
+            #멀티모드에서 상대턴일경우
+            if is_multi and (n.turn!=myPlayerNum):
+                if anotherFirst:
+                    start_new_thread(n.getPos, ())
+                    anotherFirst = False
+                else:
+                    if n.pos is not None:
+                        game_state.move_piece((n.pos[0][0], n.pos[0][1]),
+                                              (n.pos[1][0], n.pos[1][1]), False)
+                        n.pos = None
+                        anotherFirst = True
+
+
             game_state, running, square_selected, valid_moves = click_method(ai, game_over, game_state, human_player,
                                                                          is_multi, myPlayerNum, n, player_clicks,
-                                                                         running, square_selected, turn, valid_moves)
+                                                                         running, square_selected, valid_moves)
+
+
+
 
         draw_game_state(screen, game_state, valid_moves, square_selected)
         endgame = game_state.checkmate_stalemate_checker()
@@ -200,7 +218,7 @@ def pygame_start(human_player, is_multi):
 
 
 def click_method(ai, game_over, game_state, human_player, is_multi, myPlayerNum, n, player_clicks, running,
-                 square_selected, turn, valid_moves):
+                 square_selected, valid_moves):
     for e in py.event.get():
 
         if e.type == py.QUIT:
@@ -208,7 +226,7 @@ def click_method(ai, game_over, game_state, human_player, is_multi, myPlayerNum,
 
         # 멀티모드에서 최초의 초기화 부분이라고 볼 수 있음. 이 부분에서 차례와 모든것을 정한다.
 
-        elif is_multi and (not n.isStart or (turn % 2 != myPlayerNum)):
+        elif is_multi and (not n.isStart or (n.turn % 2 != myPlayerNum)):
             pass
 
         elif e.type == py.MOUSEBUTTONDOWN:
@@ -235,8 +253,13 @@ def click_method(ai, game_over, game_state, human_player, is_multi, myPlayerNum,
                     else:
                         game_state.move_piece((player_clicks[0][0], player_clicks[0][1]),
                                               (player_clicks[1][0], player_clicks[1][1]), False)
-                        n.sendOnly(server.common.make_pos(player_clicks))
-                        print(server.common.make_pos(player_clicks))
+
+                        if is_multi:
+                            n.sendOnly(server.common.make_pos(player_clicks))
+                            print(server.common.make_pos(player_clicks))
+                            n.turn += 1
+
+
                         square_selected = ()
                         player_clicks = []
                         valid_moves = []

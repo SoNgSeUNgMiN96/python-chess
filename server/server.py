@@ -58,18 +58,18 @@ def threaded_client(conn):
     player.room = room
     room.add_player(player)
 
-    #startable 일 때 전송해줘야함.
-    if room.isFull or True:
-        #room.broadcast("start ")
-        #print("start broadcast")
-        #room.gamestart()
+    # startable 일 때 전송해줘야함.
+    if room.isFull:
+        # room.broadcast("start ")
+        # print("start broadcast")
+        # room.gamestart()
 
-        message = "start "+str(room.turn)+" "
-        #room.broadcast(str(room.turn)+" ")
-        #print("turn broadcast")
-        player.send(message+str(player.playerNumber))
+        message = "start " + str(room.turn) + " "
+        # room.broadcast(str(room.turn)+" ")
+        # print("turn broadcast")
+        player.send(message + str(player.playerNumber))
         print("playerNum send")
-        #room.playerList[(player.playerNumber+1)%2].send(str((player.playerNumber+1)%2))
+        # room.playerList[(player.playerNumber+1)%2].send(str((player.playerNumber+1)%2))
         print("another playerNum send")
 
     while True:
@@ -80,23 +80,18 @@ def threaded_client(conn):
             if not data:
                 print("Disconnected")
                 break
-            else:
-                if player == 1:
-                    reply = pos[0]
-                else:
-                    reply = pos[1]
 
-                print("Received: ", data)
-                print("Sending : ", reply)
+            print("Received: ", data)
+            reply = common.make_pos(data)
+            room.sendAnotherPlayer(player.playerNumber, reply)
+            print("Sending : ", reply)
 
-            conn.sendall(str.encode(common.make_pos(reply)))
         except error as e:
             print(e)
             break
 
     print("Lost connection")
     conn.close()
-
 
 
 # 차례번호 대로
@@ -107,4 +102,4 @@ while True:
     conn, addr = s.accept()
     print("Connected to:", addr)
 
-    start_new_thread(threaded_client, (conn, ))
+    start_new_thread(threaded_client, (conn,))

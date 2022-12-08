@@ -6,8 +6,8 @@ def read_pos(str):
     print(str)
     str = str.split(",")
     list = []
-    tup1 = (int(str[0][0]), int(str[0][1]))
-    tup2 = (int(str[1][2]), int(str[3]))
+    tup1 = (int(str[0]), int(str[1]))
+    tup2 = (int(str[2]), int(str[3]))
     list.append(tup1)
     list.append(tup2)
     return list

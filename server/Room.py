@@ -27,3 +27,5 @@ class Room:
     def gamestart(self):
         self.turn = random.randint(0,10)
 
+    def sendAnotherPlayer(self, playerNum, message):
+        self.playerList[(playerNum+1)%2].send(str(message))
