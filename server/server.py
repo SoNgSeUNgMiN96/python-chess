@@ -60,12 +60,14 @@ def threaded_client(conn):
 
     #startable 일 때 전송해줘야함.
     if room.isFull or True:
-        room.broadcast("start ")
-        print("start broadcast")
-        room.gamestart()
-        room.broadcast(str(room.turn)+" ")
-        print("turn broadcast")
-        player.send(str(player.playerNumber)+" ")
+        #room.broadcast("start ")
+        #print("start broadcast")
+        #room.gamestart()
+
+        message = "start "+str(room.turn)+" "
+        #room.broadcast(str(room.turn)+" ")
+        #print("turn broadcast")
+        player.send(message+str(player.playerNumber))
         print("playerNum send")
         #room.playerList[(player.playerNumber+1)%2].send(str((player.playerNumber+1)%2))
         print("another playerNum send")
@@ -73,7 +75,7 @@ def threaded_client(conn):
     while True:
         try:
             data = common.read_pos(conn.recv(2048).decode())
-            pos[player] = data
+            print(data)
 
             if not data:
                 print("Disconnected")
@@ -88,7 +90,8 @@ def threaded_client(conn):
                 print("Sending : ", reply)
 
             conn.sendall(str.encode(common.make_pos(reply)))
-        except:
+        except error as e:
+            print(e)
             break
 
     print("Lost connection")

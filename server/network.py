@@ -30,7 +30,14 @@ class Network:
     def send(self, data):
         try:
             self.client.send(str.encode(data))
+            print(data)
             return self.client.recv(2048).decode()
+        except socket.error as e:
+            print(e)
+    def sendOnly(self, data):
+        try:
+            self.client.send(str.encode(data))
+            print(data)
         except socket.error as e:
             print(e)
 
