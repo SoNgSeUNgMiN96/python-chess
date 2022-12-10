@@ -178,11 +178,14 @@ def pygame_start(human_player, is_multi):
                     print("turn : "+str(n.turn))
                     print("myPlayerNum : "+str(myPlayerNum))
 
+                    #draw_text(screen,"game start")
+            else:
+                draw_text(screen, "wating player...")
         #멀티모드가 아니거나, 멀티모드이지만 시작한 경우.
         if not is_multi or (is_multi and n.isStart):
 
             #멀티모드에서 상대턴일경우
-            if is_multi and (n.turn!=myPlayerNum):
+            if is_multi and (n.turn != myPlayerNum):
                 if anotherFirst:
                     start_new_thread(n.getPosMessage, ())
                     anotherFirst = False
@@ -293,12 +296,11 @@ def click_method(ai, game_over, game_state, human_player, is_multi, myPlayerNum,
 
 
 def draw_text(screen, text):
-    font= py.font.SysFont("malgungothic", 32)
-    text_object = font.render(text, True, py.Color("White"))
+    font = py.font.SysFont("applegothicttf", 32, True, False)
+    text_object = font.render(text, False, py.Color("white"))
     text_location = py.Rect(0, 300, WIDTH, HEIGHT).move(WIDTH / 2 - text_object.get_width() / 2,
-                                                      HEIGHT/ 2  - text_object.get_height() / 2)
+                                                        HEIGHT / 2 - text_object.get_height() / 2)
     screen.blit(text_object, text_location)
-
 
 if __name__ == "__main__":
     main()
