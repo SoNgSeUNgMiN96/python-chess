@@ -237,7 +237,7 @@ def start_2p():
 
 def pygame_start(human_player, is_multi):
     py.init()
-    screen = py.display.set_mode((WIDTH, HEIGHT))
+    screen = py.display.set_mode((512, 600))
     clock = py.time.Clock()
     game_state = chess_engine.game_state()
     load_images()
@@ -254,28 +254,27 @@ def pygame_start(human_player, is_multi):
 
     isStart = False
 
+    text = ""
+
 
     #게임시작은 쓰레드로 돌려야함. 누군가 들어와서 시작할 때 까진 대기해야함.
     if is_multi:
         n = Network()
         start_new_thread(n.getMessage, ())
 
+
     isFirst = True
     myPlayerNum = None
     anotherFirst = True
+    color = ""
 
     if human_player == 'b':
         ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
         game_state.move_piece(ai_move[0], ai_move[1], True)
 
     while running:
-
-
-        #멀티모드에서 턴을 계속해서 받아온다?
-        #if is_multi:
-            #turn = n.getMessageessage()
-
         if is_multi:
+            draw_text(screen, text)
             if n.isStart:
                 if isFirst:
                     temp = str(n.startMessege)
@@ -288,12 +287,23 @@ def pygame_start(human_player, is_multi):
                     isFirst = False
                     print("turn : "+str(n.turn))
                     print("myPlayerNum : "+str(myPlayerNum))
+                    text = "game start"
+
+                    if myPlayerNum % 2 == 0:
+                        color = "white"
+                    else:
+                        color = "black"
+
+            else:
+                text = "waiting player"
 
         #멀티모드가 아니거나, 멀티모드이지만 시작한 경우.
         if not is_multi or (is_multi and n.isStart):
 
             #멀티모드에서 상대턴일경우
-            if is_multi and (n.turn!=myPlayerNum):
+            if is_multi and (n.turn != myPlayerNum):
+
+                text = "my color is "+color+ " opposing turn."
                 if anotherFirst:
                     start_new_thread(n.getPosMessage, ())
                     anotherFirst = False
@@ -306,12 +316,26 @@ def pygame_start(human_player, is_multi):
                         anotherFirst = True
                         n.turn +=1
                         print("turn  = " + str(n.turn))
+                    game_state, running, square_selected, valid_moves, player_clicks = click_method(ai, game_over,
+                                                                                                    game_state,
+                                                                                                    human_player,
+                                                                                                    is_multi,
+                                                                                                    myPlayerNum, n,
+                                                                                                    player_clicks,
+                                                                                                    running,
+                                                                                                    square_selected,
+                                                                                                    valid_moves)
 
-
-            game_state, running, square_selected, valid_moves, player_clicks = click_method(ai, game_over, game_state, human_player,
+            else:
+                if is_multi and (n.turn == myPlayerNum):
+                    text = "my color is " + color + " my turn."
+                game_state, running, square_selected, valid_moves, player_clicks = click_method(ai, game_over, game_state, human_player,
                                                                          is_multi, myPlayerNum, n, player_clicks,
                                                                          running, square_selected, valid_moves)
-
+        else:
+            for e in py.event.get():
+                if e.type == py.QUIT:
+                    running = False
 
 
 
@@ -440,12 +464,16 @@ def main():
 
 
 def draw_text(screen, text):
-    font = py.font.SysFont("Helvitca", 32, True, False)
-    text_object = font.render(text, False, py.Color("Black"))
-    text_location = py.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH / 2 - text_object.get_width() / 2,
-                                                      HEIGHT / 2 - text_object.get_height() / 2)
-    screen.blit(text_object, text_location)
+    font = py.font.SysFont("applegothicttf", 32, True, False)
 
+    text_object = font.render(text, False, py.Color("white"))
+    text_location = py.Rect(0, 300, WIDTH, HEIGHT).move(WIDTH / 2 - text_object.get_width() / 2,
+                                                        HEIGHT / 2 - text_object.get_height() / 2)
+
+
+    screen.fill('black', py.Rect(0, 512, 512, 88))
+    screen.blit(text_object, text_location)
+    py.display.update()
 
 if __name__ == "__main__":
     main()
