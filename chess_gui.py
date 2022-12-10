@@ -11,11 +11,8 @@ import pygame as py
 import server.common
 
 import ai_engine
-import chess_server
-import select_server_client
 from server.network import Network
 from enums import Player
-import threading
 from _thread import *
 
 """Variables"""

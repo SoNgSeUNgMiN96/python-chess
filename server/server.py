@@ -24,13 +24,7 @@ print("Waiting for a connection, Server Started")
 # Todo pos를 룸단위로 구분하기
 ## 좌표는 2차원 튜플로 구분한다.
 
-pos = [[(0, 0), (0, 0)], [(0, 0), (0, 0)]]
-
-turn = ['w', 'b']
-
 roomList = []
-
-randomTurn = random.randint(0, 2)
 
 
 def isRoomExist():
@@ -60,20 +54,15 @@ def threaded_client(conn):
 
     # startable 일 때 전송해줘야함.
     if room.isFull:
-        # room.broadcast("start ")
-        # print("start broadcast")
-        # room.gamestart()
-
+        room.turn = random.randint(0, 3)
         message = "start " + str(room.turn) + " "
-        # room.broadcast(str(room.turn)+" ")
-        # print("turn broadcast")
         player.send(message + str(player.playerNumber))
         print("playerNum send")
-        anotherPlayerNum = (player.playerNumber + 1) %2
+        anotherPlayerNum = (player.playerNumber + 1) % 2
 
         anotherMessage = message + str(anotherPlayerNum)
         room.sendAnotherPlayer(player.playerNumber, anotherMessage)
-        print("another playerNum send"+ anotherMessage)
+        print("another playerNum send" + anotherMessage)
 
     while True:
         try:
@@ -102,7 +91,9 @@ def threaded_client(conn):
 
 # 우선 2명 모드만 지원하고, 업데이트 하는 방식으로 바꾸기.
 while True:
-    conn, addr = s.accept()
-    print("Connected to:", addr)
-
-    start_new_thread(threaded_client, (conn,))
+    try:
+        conn, addr = s.accept()
+        print("Connected to:", addr)
+        start_new_thread(threaded_client, (conn,))
+    except error as e:
+        print(e)
