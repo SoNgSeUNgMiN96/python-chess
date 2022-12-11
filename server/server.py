@@ -8,7 +8,7 @@ import random
 from Player import Player
 from Room import Room
 
-server = "127.0.0.1"
+server = "115.137.252.201"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
