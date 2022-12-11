@@ -8,7 +8,7 @@ import random
 from Player import Player
 from Room import Room
 
-server = "192.168.219.107"
+server = "127.0.0.1"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,50 +40,73 @@ def sendEncode(conn, message):
 
 
 def threaded_client(conn):
-    room = isRoomExist()
+    room = None
 
-    # 룸이 없다면 룸 생성 후 리스트 추가
-    if room is None:
-        room = Room()
-        roomList.append(room)
+    try:
+        room = isRoomExist()
+         # 룸이 없다면 룸 생성 후 리스트 추가
+        if room is None:
+            room = Room()
+            roomList.append(room)
 
-    # Player 생성.
-    player = Player(conn, room, room.playerNumber)
-    player.room = room
-    room.add_player(player)
+        # Player 생성.
+        player = Player(conn, room, room.playerNumber)
+        player.room = room
+        player.playerNumber = room.playerNumber
+        room.add_player(player)
 
     # startable 일 때 전송해줘야함.
-    if room.isFull:
-        room.turn = random.randint(0, 3)
-        message = "start " + str(room.turn) + " "
-        player.send(message + str(player.playerNumber))
-        print("playerNum send")
-        anotherPlayerNum = (player.playerNumber + 1) % 2
+        if room.isFull:
+            room.turn = random.randint(0, 3)
+            message = "start " + str(room.turn) + " "
+            player.send(message + str(player.playerNumber))
+            print("playerNum send "+message+ str(player.playerNumber))
+            anotherPlayerNum = (player.playerNumber + 1) % 2
 
-        anotherMessage = message + str(anotherPlayerNum)
-        room.sendAnotherPlayer(player.playerNumber, anotherMessage)
-        print("another playerNum send" + anotherMessage)
+            anotherMessage = message + str(anotherPlayerNum)
+            room.sendAnotherPlayer(player.playerNumber, anotherMessage)
+            print("another playerNum send" + anotherMessage)
+    except socket.error as e:
+
+        room_delete(room)
+        print(e)
+        print("Lost connection")
+        return
+    except:
+        room_delete(room)
+        print("Lost connection")
+        return
 
     while True:
         try:
-            data = common.read_pos(conn.recv(2048).decode())
-            print(data)
-
-            if not data:
+            orinMessage = conn.recv(2048).decode()
+            if not orinMessage:
                 print("Disconnected")
+                room_delete(room)
                 break
-
+            data = common.read_pos(orinMessage)
+            print(data)
             print("Received: ", data)
             reply = common.make_pos(data)
             room.sendAnotherPlayer(player.playerNumber, reply)
             print("Sending : ", reply)
 
-        except error as e:
+        except socket.error as e:
+            room_delete(room)
             print(e)
+            break
+        except:
+            room_delete(room)
             break
 
     print("Lost connection")
-    conn.close()
+
+
+def room_delete(room):
+    for player in room.playerList:
+        player.connection.close()
+    if room in roomList:
+        roomList.remove(room)
 
 
 # 차례번호 대로
@@ -95,5 +118,5 @@ while True:
         conn, addr = s.accept()
         print("Connected to:", addr)
         start_new_thread(threaded_client, (conn,))
-    except error as e:
+    except socket.error as e:
         print(e)

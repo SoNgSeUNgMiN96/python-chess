@@ -235,7 +235,7 @@ def start_2p():
     human_player = ""
     start_game(human_player)
 
-def pygame_start(human_player, is_multi):
+def pygame_start(human_player):
     py.init()
     screen = py.display.set_mode((512, 600))
     clock = py.time.Clock()
@@ -258,9 +258,8 @@ def pygame_start(human_player, is_multi):
 
 
     #게임시작은 쓰레드로 돌려야함. 누군가 들어와서 시작할 때 까진 대기해야함.
-    if is_multi:
-        n = Network()
-        start_new_thread(n.getMessage, ())
+    n = Network()
+    start_new_thread(n.getMessage, ())
 
 
     isFirst = True
@@ -268,42 +267,41 @@ def pygame_start(human_player, is_multi):
     anotherFirst = True
     color = ""
 
-    if human_player == 'b':
-        ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
-        game_state.move_piece(ai_move[0], ai_move[1], True)
 
     while running:
-        if is_multi:
+        if not game_over:
             draw_text(screen, text)
-            if n.isStart:
-                if isFirst:
-                    temp = str(n.startMessege)
+        if not n.connected:
+            text ="disconnected"
+            draw_text(screen, text)
 
-                    print(temp)
+        elif n.isStart:
+            #첫 연결 초기화
+            if isFirst:
+                temp = str(n.startMessege)
+                print(temp)
+                temp = temp.split(" ")
+                n.turn = int(temp[1])
+                myPlayerNum = int(temp[2])
+                isFirst = False
+                print("turn : "+str(n.turn))
+                print("myPlayerNum : "+str(myPlayerNum))
 
-                    temp = temp.split(" ")
-                    n.turn = int(temp[1])
-                    myPlayerNum = int(temp[2])
-                    isFirst = False
-                    print("turn : "+str(n.turn))
-                    print("myPlayerNum : "+str(myPlayerNum))
-                    text = "game start"
+                if myPlayerNum == n.turn % 2:
+                    color = "white"
+                else:
+                    color = "black"
 
-                    if myPlayerNum % 2 == 0:
-                        color = "white"
-                    else:
-                        color = "black"
+            ##
+            if not n.connected:
+                text ="disconnected"
+                draw_text(screen, text)
 
-            else:
-                text = "waiting player"
-
-        #멀티모드가 아니거나, 멀티모드이지만 시작한 경우.
-        if not is_multi or (is_multi and n.isStart):
-
+            if game_over:
+                game_over = end_game_action(endgame, game_over, screen)
             #멀티모드에서 상대턴일경우
-            if is_multi and (n.turn != myPlayerNum):
-
-                text = "my color is "+color+ " opposing turn."
+            elif n.turn % 2 != myPlayerNum:
+                text = "my color is " + color + " opposing turn."
                 if anotherFirst:
                     start_new_thread(n.getPosMessage, ())
                     anotherFirst = False
@@ -316,57 +314,55 @@ def pygame_start(human_player, is_multi):
                         anotherFirst = True
                         n.turn +=1
                         print("turn  = " + str(n.turn))
-                    game_state, running, square_selected, valid_moves, player_clicks = click_method(ai, game_over,
-                                                                                                    game_state,
-                                                                                                    human_player,
-                                                                                                    is_multi,
-                                                                                                    myPlayerNum, n,
-                                                                                                    player_clicks,
-                                                                                                    running,
-                                                                                                    square_selected,
-                                                                                                    valid_moves)
-
+                    running, text = another_turn(n, running, screen, text)
             else:
-                if is_multi and (n.turn == myPlayerNum):
-                    text = "my color is " + color + " my turn."
+                text = "my color is " + color + " my turn. "
                 game_state, running, square_selected, valid_moves, player_clicks = click_method(ai, game_over, game_state, human_player,
-                                                                         is_multi, myPlayerNum, n, player_clicks,
+                                                                        myPlayerNum, n, player_clicks,
                                                                          running, square_selected, valid_moves)
         else:
-            for e in py.event.get():
-                if e.type == py.QUIT:
-                    running = False
-
-
+            text = "waiting player"
+            running, text = another_turn(n, running, screen, text)
 
         draw_game_state(screen, game_state, valid_moves, square_selected)
         endgame = game_state.checkmate_stalemate_checker()
-        if endgame == 0:
-            game_over = True
-            draw_text(screen, "Black wins.")
-        elif endgame == 1:
-            game_over = True
-            draw_text(screen, "White wins.")
-        elif endgame == 2:
-            game_over = True
-            draw_text(screen, "Stalemate.")
+        game_over = end_game_action(endgame, game_over, screen)
 
         clock.tick(MAX_FPS)
         py.display.flip()
 
+def end_game_action(endgame, game_over, screen):
+    if endgame == 0:
+        game_over = True
+        draw_text(screen, "Black wins.")
+    elif endgame == 1:
+        game_over = True
+        draw_text(screen, "White wins.")
+    elif endgame == 2:
+        game_over = True
+        draw_text(screen, "Stalemate.")
+    return game_over
 
-def click_method(ai, game_over, game_state, human_player, is_multi, myPlayerNum, n, player_clicks, running,
+
+def another_turn(n, running, screen, text):
+    if not n.connected:
+        text = "disconnected"
+        draw_text(screen, text)
+    for e in py.event.get():
+        if e.type == py.QUIT:
+            running = False
+    return running, text
+
+
+def click_method(ai, game_over, game_state, human_player, myPlayerNum, n, player_clicks, running,
                  square_selected, valid_moves):
     for e in py.event.get():
 
         if e.type == py.QUIT:
             running = False
-
         # 멀티모드에서 최초의 초기화 부분이라고 볼 수 있음. 이 부분에서 차례와 모든것을 정한다.
-
-        elif is_multi and (not n.isStart or (n.turn % 2 != myPlayerNum)):
+        elif n.turn % 2 != myPlayerNum:
             pass
-
         elif e.type == py.MOUSEBUTTONDOWN:
             if not game_over:
                 location = py.mouse.get_pos()
@@ -392,11 +388,10 @@ def click_method(ai, game_over, game_state, human_player, is_multi, myPlayerNum,
                         game_state.move_piece((player_clicks[0][0], player_clicks[0][1]),
                                               (player_clicks[1][0], player_clicks[1][1]), False)
 
-                        if is_multi:
-                            n.sendOnly(server.common.make_pos(player_clicks))
-                            print(server.common.make_pos(player_clicks))
-                            n.turn += 1
-                            print("turn  = "+ str(n.turn))
+                        n.sendOnly(server.common.make_pos(player_clicks))
+                        print(server.common.make_pos(player_clicks))
+                        n.turn += 1
+                        print("turn  = "+ str(n.turn))
 
 
                         square_selected = ()
@@ -427,7 +422,7 @@ def click_method(ai, game_over, game_state, human_player, is_multi, myPlayerNum,
     return game_state, running, square_selected, valid_moves, player_clicks
 
 def network_game():
-    pygame_start("", True)
+    pygame_start("")
 
 def start_main_menu():
     menu = True
